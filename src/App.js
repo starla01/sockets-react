@@ -13,7 +13,9 @@ class App extends Component {
       conversation: [],
       flagSetting: false,
       colors: [{ "color": "#0084ff"},{ "color": "#54c7ec"},{ "color": "#f5c33a"},{ "color": "#f45368"},{ "color": "#d696bc"},{ "color": "#7496c8"},{ "color": "#42b72b"},{ "color": "#f7913a"},{ "color": "#e68484"},{ "color": "#e68484"},{ "color": "#8c71cc"},{ "color": "#53c8ec"},{ "color": "#a3ce70"},{ "color": "#cfa588"},{ "color": "#af9bda"}],
-      selectedColor: null
+      selectedColor: '#4483fb',
+      idLocalPerson: null,
+      listUsers: []
     }
   }
 
@@ -29,7 +31,11 @@ class App extends Component {
   setName  = () => {
     var person = prompt("Introduce tu nombre para la sala de Chat", "");
     if (person != null) {
-      this.setState({person})
+      const ID = Math.floor(Math.random() * 99999) + 1
+      this.setState({person: person, idLocalPerson: ID})
+      const socket = socketIOClient(this.state.endpoint)
+      socket.emit('ID person', ID + '|' + person)
+      socket.emit('ID', ID);
     }
   }
 
@@ -40,7 +46,7 @@ class App extends Component {
     if(e.keyCode === 13){
       e.target.value = '';
       const socket = socketIOClient(this.state.endpoint)
-      socket.emit('chat', message)
+      socket.emit('chat', this.state.idLocalPerson + '|' + this.state.selectedColor + '|' + this.state.person + '|' + message)
     }
   }
   componentDidMount(){
@@ -57,12 +63,14 @@ class App extends Component {
   }
   selectColor = (color) => {
     this.setState({selectedColor: color})
+    const socket = socketIOClient(this.state.endpoint)
+    socket.emit('change color', this.state.idLocalPerson + '|' + color)
   }
   render() {
-    
+    console.log(this.state.conversation)
     let datos = this.state.conversation.length ? this.state.conversation.map((data, key) => { 
       var long = data.length
-      return <div className="envolveMsg"><span id={key} style={{textAlign: 'center', float: long > 40 ? 'right' : 'none'}} className="message" style={{ backgroundColor: this.state.selectedColor ? this.state.selectedColor : '#4080ff'}} key={key}><span className="letter">{this.state.person.substring(0,1)}</span>{data}</span></div>
+      return <div className="envolveMsg"><span id={key} style={{textAlign: 'center', float: long > 40 ? 'right' : 'none'}} className="message" style={{ backgroundColor: data.split('|')[1] ?  data.split('|')[1] : this.state.selectedColor }} key={key}><span className="letter">{data.split('|')[2].substring(0,1)}</span>{data.split('|')[3]}</span></div>
     }) : null;
 
     const colors = this.state.colors.map((col) => {

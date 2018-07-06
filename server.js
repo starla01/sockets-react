@@ -29,8 +29,18 @@ io.on('connection', socket => {
         //     io.sockets.emit('change color', color)
         // })
     socket.on('chat', (msg) => {
-            console.log('Mensaje registrado', msg)
-            io.sockets.emit('chat', msg)
+        console.log(msg)
+        io.sockets.emit('chat', msg)
+    })
+
+    socket.on('ID person', (IDPerson) => {
+        console.log(IDPerson)
+        io.sockets.emit('ID person', IDPerson)
+    })
+
+    socket.on('change color', (color) => {
+            console.log(color)
+            io.sockets.emit('change color', color)
         })
         // disconnect is fired when a client leaves the server
     socket.on('disconnect', () => {
