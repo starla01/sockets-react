@@ -39,13 +39,21 @@ io.on('connection', socket => {
     })
 
     socket.on('change color', (color) => {
-            console.log(color)
-            io.sockets.emit('change color', color)
+        console.log(color)
+        io.sockets.emit('change color', color)
+    })
+
+    socket.on('writing', (person) => {
+            console.log(person + ' esta escribiendo...')
+            person ? io.sockets.emit('writing', person) : io.sockets.emit('writing', '')
+
         })
         // disconnect is fired when a client leaves the server
     socket.on('disconnect', () => {
         console.log('user disconnected')
     })
+
+
 })
 
 server.listen(port, () => console.log(`Listening on port ${port}`))
